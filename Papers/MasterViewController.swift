@@ -163,8 +163,20 @@ class MasterViewController: UICollectionViewController {
 
         let indexPaths = self.collectionView!.indexPathsForSelectedItems()!
 
+        let layout = collectionViewLayout as! PapersFlowLayOut
+
+        layout.disappearingItemsIndexPaths = indexPaths
+
         papersDataSource.deleteItemsAtIndexPaths(indexPaths)
-        collectionView?.deleteItemsAtIndexPaths(indexPaths)
+
+
+        UIView.animateWithDuration(0.65, delay: 0, options: .CurveEaseInOut, animations: { () -> Void in
+
+    self.collectionView?.deleteItemsAtIndexPaths(indexPaths)
+    }) { (finshed:Bool) -> Void in
+
+        layout.disappearingItemsIndexPaths = nil
+        }
 
 
 
