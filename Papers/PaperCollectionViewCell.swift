@@ -16,6 +16,21 @@ class PaperCollectionViewCell: UICollectionViewCell {
 
     @IBOutlet weak var checkImageView: UIImageView!
 
+    var editing: Bool = false {
+
+        didSet{
+            caption.hidden = editing
+            checkImageView.hidden = !editing
+        }
+    }
+
+    override var selected: Bool {
+        didSet{
+            if editing  {
+                checkImageView.image = UIImage(named: selected ? "Checked" : "Unchecked")
+            }
+        }
+    }
     var paper: Paper? {
         didSet {
         if let paper = paper {

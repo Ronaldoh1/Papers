@@ -65,7 +65,7 @@
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Unchecked" translatesAutoresizingMaskIntoConstraints="NO" id="6J0-SI-cNc">
+                                        <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Unchecked" translatesAutoresizingMaskIntoConstraints="NO" id="6J0-SI-cNc">
                                             <rect key="frame" x="89" y="176" width="22" height="22"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="22" id="bZw-9I-YLO"/>
@@ -131,6 +131,15 @@
                             <outlet property="delegate" destination="rK8-JM-8yW" id="eyj-Vj-U87"/>
                         </connections>
                     </collectionView>
+                    <toolbarItems>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="Ybg-rQ-sFL"/>
+                        <barButtonItem systemItem="trash" id="Hjo-IX-gHp">
+                            <connections>
+                                <action selector="deleteItems:" destination="rK8-JM-8yW" id="ETz-fO-QaM"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="rQy-Xx-vh8"/>
+                    </toolbarItems>
                     <navigationItem key="navigationItem" id="tX2-So-Iz4">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="zph-Oo-7wZ">
                             <connections>
@@ -139,6 +148,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="addButton" destination="zph-Oo-7wZ" id="qKe-oJ-Ifc"/>
                         <segue destination="ljD-dV-frr" kind="show" identifier="MasterToDetail" id="zM6-S9-brf"/>
                     </connections>
                 </collectionViewController>

@@ -1,3 +1,4 @@
+
 //
 //  MasterViewController.swift
 //  Papers
@@ -10,6 +11,8 @@ import UIKit
 
 class MasterViewController: UICollectionViewController {
 
+    @IBOutlet weak var addButton: UIBarButtonItem!
+
     //MARK:
     private var papersDataSource = PapersDataSource()
 
@@ -19,7 +22,35 @@ class MasterViewController: UICollectionViewController {
         // Do any additional setup after loading the view.
 
         setUpCellLayout()
-        self.editButtonItem()
+
+        navigationItem.leftBarButtonItem = editButtonItem()
+        navigationController?.toolbarHidden = true
+    }
+    //this is done to update the collectionview cells when they're already visible
+    override func setEditing(editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+
+        //disable the addButton
+        self.addButton.enabled = !editing
+
+        collectionView?.allowsMultipleSelection = editing
+        //get the indexPaths of all the cell selected
+
+        let indexPathsArray = (collectionView?.indexPathsForVisibleItems())! as [NSIndexPath]
+
+        //need to enumerate through all of these. 
+
+        for indexPath in indexPathsArray {
+            collectionView?.deselectItemAtIndexPath(indexPath, animated: animated)
+
+            let cell = collectionView?.cellForItemAtIndexPath(indexPath) as! PaperCollectionViewCell
+            cell.editing = editing
+
+        }
+
+        if !editing {
+            navigationController?.setToolbarHidden(true, animated: animated)
+        }
     }
 
     func setUpCellLayout(){
@@ -63,6 +94,7 @@ class MasterViewController: UICollectionViewController {
         if let paper = papersDataSource.paperForItemAtIndexPath(indexPath) {
 
             cell.paper = paper
+            cell.editing = editing
         }
 
 
@@ -87,12 +119,24 @@ class MasterViewController: UICollectionViewController {
 
     override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
 
-        if let paper = self.papersDataSource.paperForItemAtIndexPath(indexPath) {
+        if !editing {
+            if let paper = self.papersDataSource.paperForItemAtIndexPath(indexPath) {
             self.performSegueWithIdentifier("MasterToDetail", sender: paper)
+            }
+        }else{
+
+            navigationController?.setToolbarHidden(false, animated: true)
         }
     }
     
+    override func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
+        if editing  {
+            if collectionView.indexPathsForSelectedItems()?.count == 0 {
 
+                navigationController?.setToolbarHidden(true, animated: true)
+            }
+        }
+    }
     @IBAction func addButtonTapped(sender: AnyObject) {
 
         //1. Insert item to data source 
@@ -109,6 +153,19 @@ class MasterViewController: UICollectionViewController {
             }, completion: { (finished: Bool) -> Void in
                 layout.appearingIndexPath = nil
             })
+
+
+    }
+    
+    @IBAction func deleteItems(sender: UIBarButtonItem) {
+
+
+
+        let indexPaths = self.collectionView!.indexPathsForSelectedItems()!
+
+        papersDataSource.deleteItemsAtIndexPaths(indexPaths)
+        collectionView?.deleteItemsAtIndexPaths(indexPaths)
+
 
 
     }
