@@ -16,6 +16,9 @@ class MasterViewController: UICollectionViewController {
     //MARK:
     private var papersDataSource = PapersDataSource()
 
+    private var snapShot: UIView?
+    private var scourceIndexPath: NSIndexPath?
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -25,6 +28,9 @@ class MasterViewController: UICollectionViewController {
 
         navigationItem.leftBarButtonItem = editButtonItem()
         navigationController?.toolbarHidden = true
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "handleLongPress:")
+
+        collectionView?.addGestureRecognizer(longPressGestureRecognizer)
     }
     //this is done to update the collectionview cells when they're already visible
     override func setEditing(editing: Bool, animated: Bool) {
@@ -63,6 +69,68 @@ class MasterViewController: UICollectionViewController {
         let layout = collectionViewLayout as! UICollectionViewFlowLayout
 
         layout.itemSize = CGSize(width: width, height: width)
+
+    }
+
+    //Utitlity Method 
+
+    private func updateSnapShotView(center: CGPoint, transform: CGAffineTransform, alpha: CGFloat){
+
+        if let snapShot = snapShot {
+            snapShot.center = center
+            snapShot.transform = transform
+            snapShot.alpha = alpha
+
+        }
+
+    }
+
+    func handleLongPress(recognizer: UILongPressGestureRecognizer){
+        if editing {
+            return
+        }
+
+        let location = recognizer.locationInView(collectionView)
+        var indexPath = collectionView?.indexPathForItemAtPoint(location)
+        switch recognizer.state {
+        case .Began:
+            if let indexPath = indexPath{
+                scourceIndexPath = indexPath
+                let cell = collectionView?.cellForItemAtIndexPath(indexPath) as! PaperCollectionViewCell
+                snapShot = cell.snapShot
+                updateSnapShotView(cell.center, transform: CGAffineTransformIdentity, alpha: 0.0)
+
+                collectionView?.addSubview(snapShot!)
+                UIView.animateWithDuration(0.25, animations: { () -> Void in
+                    self.updateSnapShotView(cell.center, transform: CGAffineTransformMakeScale(1.05, 1.05), alpha: 0.95)
+
+                    cell.moving = true
+                })
+            }
+
+        case .Changed:
+
+            self.snapShot?.center = location
+            if let indexPath = indexPath {
+                papersDataSource.movePaperAtIndexPath(scourceIndexPath!, toIndexPath: indexPath)
+                collectionView?.moveItemAtIndexPath(scourceIndexPath!, toIndexPath: indexPath)
+                scourceIndexPath = indexPath
+            }
+
+        default:
+            let cell = collectionView?.cellForItemAtIndexPath(scourceIndexPath!) as! PaperCollectionViewCell
+            UIView.animateWithDuration(0.25, animations: { () -> Void in
+                self.updateSnapShotView(cell.center, transform: CGAffineTransformIdentity, alpha: 0.0)
+                cell.moving = false
+
+
+                }, completion: {(finished: Bool) -> Void in
+
+                    self.snapShot?.removeFromSuperview()
+                    self.snapShot = nil
+
+            })
+        }
 
     }
 
@@ -177,8 +245,6 @@ class MasterViewController: UICollectionViewController {
 
         layout.disappearingItemsIndexPaths = nil
         }
-
-
 
     }
 

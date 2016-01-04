@@ -23,7 +23,27 @@ class PaperCollectionViewCell: UICollectionViewCell {
             checkImageView.hidden = !editing
         }
     }
+    var moving: Bool = false {
+        didSet{
+            let alpha: CGFloat = moving ? 0.0 : 1.0
 
+            paperImageView.alpha = alpha
+            gradientView.alpha = alpha
+            caption.alpha = alpha
+        }
+    }
+
+    var snapShot: UIView {
+        get {
+            let snapshot = snapshotViewAfterScreenUpdates(true)
+            let layer = snapshot.layer
+            layer.masksToBounds = false
+            layer.shadowOffset = CGSize(width: -5.0, height:  0.0)
+            layer.shadowOpacity = 0.4
+
+            return snapshot
+        }
+    }
     override var selected: Bool {
         didSet{
             if editing  {
